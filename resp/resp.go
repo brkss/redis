@@ -5,15 +5,14 @@ import (
 	"fmt"
 	"io"
 	"strconv"
-	"strings"
 )
 
 const (
-	STRING  = "+"
-	ERROR   = "-"
-	INTEGER = ":"
-	BULK    = "$"
-	ARRAY   = "*"
+	STRING  = '+'
+	ERROR   = '-'
+	INTEGER = ':'
+	BULK    = '$'
+	ARRAY   = '*'
 )
 
 type Value struct {
@@ -61,31 +60,62 @@ func (r *Resp) readInteger() (x, n int, err error) {
 	return int(i64), n, nil
 }
 
-func ParseInput(input string) (*Value, error) {
-
-	reader := bufio.NewReader(strings.NewReader(input))
-	b, err := reader.ReadByte()
+// Read: read parses Value from bufio reader
+func (r *Resp) Read() (Value, error) {
+	_type, err := r.reader.ReadByte()
 	if err != nil {
-		return nil, err
+		return Value{}, nil
 	}
 
-	if b != '$' {
-		err := fmt.Errorf("Invalid type, expecting bulk strings ($) got : %c", b)
-		return nil, err
+	switch _type {
+	case ARRAY:
+		return r.readArray()
+	case BULK:
+		return r.readBulk()
+	default:
+		err := fmt.Errorf("Unkown type %v\n", string(_type))
+		return Value{}, err
 	}
+}
 
-	size, err := reader.ReadByte()
+// readArray: reads array from bufio reader
+func (r *Resp) readArray() (Value, error) {
+	v := Value{}
+	v.typ = "array"
+
+	// read length of the array
+	length, _, err := r.readInteger()
 	if err != nil {
-		return nil, err
+		return Value{}, err
+	}
+	v.arr = make([]Value, 0)
+	for i := 0; i < length; i++ {
+		val, err := r.Read()
+		if err != nil {
+			return Value{}, err
+		}
+		// append parsed value to array
+		v.arr = append(v.arr, val)
 	}
 
-	strSize, err := strconv.ParseInt(string(size), 10, 64)
+	return v, nil
+}
+
+// readBulk: read and parse a bulk string from the bufio reader
+func (r *Resp) readBulk() (Value, error) {
+	v := Value{}
+	v.typ = "bulk"
+
+	length, _, err := r.readInteger()
 	if err != nil {
-		return nil, err
+		return Value{}, err
 	}
 
-	// consume /r/n
-	reader.ReadByte()
-	reader.ReadByte()
+	str := make([]byte, length)
+	v.blk = string(str)
 
+	// read the trailing CRLF
+	r.readLine()
+
+	return v, nil
 }
