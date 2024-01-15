@@ -80,6 +80,7 @@ func (r *Resp) Read() (Value, error) {
 
 // readArray: reads array from bufio reader
 func (r *Resp) readArray() (Value, error) {
+
 	v := Value{}
 	v.typ = "array"
 
@@ -107,11 +108,13 @@ func (r *Resp) readBulk() (Value, error) {
 	v.typ = "bulk"
 
 	length, _, err := r.readInteger()
+	fmt.Println("length : ", length)
 	if err != nil {
 		return Value{}, err
 	}
 
 	str := make([]byte, length)
+	r.reader.Read(str)
 	v.blk = string(str)
 
 	// read the trailing CRLF

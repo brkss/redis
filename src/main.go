@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"log"
 	"net"
+
+	"github.com/brkss/redis/src/resp"
 )
 
 const (
@@ -32,15 +33,14 @@ func main() {
 	defer conn.Close()
 
 	for {
-		buff := make([]byte, BUFFER_SIZE)
-		_, err := conn.Read(buff)
+
+		reader := resp.NewReader(conn)
+		val, err := reader.Read()
 		if err != nil {
-			if err == io.EOF {
-				break
-			}
 			log.Fatal("Something went wrong reading client query : ", err)
 		}
 
+		fmt.Println("val : ", val)
 		conn.Write([]byte("+OK\r\n"))
 	}
 
