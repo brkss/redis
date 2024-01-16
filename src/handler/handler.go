@@ -10,9 +10,12 @@ var SETs = map[string]string{}
 var SETsMutex = sync.RWMutex{}
 
 var Handlers = map[string]func([]resp.Value) resp.Value{
-	"PING": ping,
-	"GET":  get,
-	"SET":  set,
+	"PING":    ping,
+	"GET":     get,
+	"SET":     set,
+	"HGET":    hget,
+	"HSET":    hset,
+	"HGETALL": hgetall,
 }
 
 func ping(args []resp.Value) resp.Value {
