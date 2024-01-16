@@ -16,19 +16,19 @@ func TestRead(t *testing.T) {
 		"correct parsing": {
 			input: "*3\r\n$3\r\nSET\r\n$4\r\njack\r\n$5\r\nadmin\r\n",
 			expected: Value{
-				typ: "array",
-				arr: []Value{
+				Typ: "array",
+				Arr: []Value{
 					{
-						typ: "bulk",
-						blk: "SET",
+						Typ: "bulk",
+						Blk: "SET",
 					},
 					{
-						typ: "bulk",
-						blk: "jack",
+						Typ: "bulk",
+						Blk: "jack",
 					},
 					{
-						typ: "bulk",
-						blk: "admin",
+						Typ: "bulk",
+						Blk: "admin",
 					},
 				},
 			},

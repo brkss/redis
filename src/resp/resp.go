@@ -16,11 +16,11 @@ const (
 )
 
 type Value struct {
-	typ string
-	str string
-	num int
-	blk string
-	arr []Value
+	Typ string
+	Str string
+	Num int
+	Blk string
+	Arr []Value
 }
 
 type Resp struct {
@@ -82,21 +82,21 @@ func (r *Resp) Read() (Value, error) {
 func (r *Resp) readArray() (Value, error) {
 
 	v := Value{}
-	v.typ = "array"
+	v.Typ = "array"
 
 	// read length of the array
 	length, _, err := r.readInteger()
 	if err != nil {
 		return Value{}, err
 	}
-	v.arr = make([]Value, 0)
+	v.Arr = make([]Value, 0)
 	for i := 0; i < length; i++ {
 		val, err := r.Read()
 		if err != nil {
 			return Value{}, err
 		}
 		// append parsed value to array
-		v.arr = append(v.arr, val)
+		v.Arr = append(v.Arr, val)
 	}
 
 	return v, nil
@@ -105,7 +105,7 @@ func (r *Resp) readArray() (Value, error) {
 // readBulk: read and parse a bulk string from the bufio reader
 func (r *Resp) readBulk() (Value, error) {
 	v := Value{}
-	v.typ = "bulk"
+	v.Typ = "bulk"
 
 	length, _, err := r.readInteger()
 	fmt.Println("length : ", length)
@@ -115,7 +115,7 @@ func (r *Resp) readBulk() (Value, error) {
 
 	str := make([]byte, length)
 	r.reader.Read(str)
-	v.blk = string(str)
+	v.Blk = string(str)
 
 	// read the trailing CRLF
 	r.readLine()
