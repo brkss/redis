@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"strings"
 
+	"github.com/brkss/redis/src/handler"
 	"github.com/brkss/redis/src/resp"
 )
 
@@ -40,11 +42,30 @@ func main() {
 			log.Fatal("Something went wrong reading client query : ", err)
 		}
 
-		fmt.Println("val : ", val)
+		if val.Typ != "array" {
+			fmt.Println("request expected array !")
+			continue
+		}
+
+		if len(val.Arr) == 0 {
+			fmt.Println("expected array length to be greater than 0")
+			continue
+		}
+
 		writer := resp.NewWriter(conn)
-		v := resp.Value{Typ: "string", Str: "woring.."}
-		writer.Write(v)
-		//conn.Write([]byte("+OK\r\n"))
+
+		command := strings.ToUpper(val.Arr[0].Blk)
+		args := val.Arr[1:]
+
+		handler, ok := handler.Handlers[command]
+		if !ok {
+			fmt.Println("invalid command : ", command)
+			writer.Write(resp.Value{Typ: "string", Str: ""})
+			continue
+		}
+
+		results := handler(args)
+		writer.Write(results)
 	}
 
 }
