@@ -100,3 +100,132 @@ func TestSetGet(t *testing.T) {
 	}
 
 }
+
+func TestHashSet(t *testing.T) {
+	tests := map[string]struct {
+		input       []resp.Value
+		expected    resp.Value
+		fails       bool
+		expectedErr resp.Value
+	}{
+		"HSET_SUCCESS": {
+			input: []resp.Value{
+				{
+					Typ: "bulk",
+					Blk: "users",
+				},
+				{
+					Typ: "bulk",
+					Blk: "brahim",
+				},
+				{
+					Typ: "bulk",
+					Blk: "admin",
+				},
+			},
+			expected: resp.Value{Typ: "string", Str: "OK"},
+			fails:    false,
+		},
+		"HSET_INVALID_ARGS": {
+			input: []resp.Value{
+				{
+					Typ: "bulk",
+					Blk: "users",
+				},
+				{
+					Typ: "bulk",
+					Blk: "brahim",
+				},
+			},
+			expectedErr: resp.Value{Typ: "error", Str: "ERR invalid arguments for 'hset' command"},
+			fails:       true,
+		},
+	}
+
+	for _, test := range tests {
+		results := hset(test.input)
+		if test.fails == true {
+			assert.Equal(t, test.expectedErr, results)
+		} else {
+			assert.Equal(t, test.expected, results)
+		}
+	}
+}
+
+func TestHashGet(t *testing.T) {
+
+	tests := map[string]struct {
+		input       []resp.Value
+		expected    resp.Value
+		fails       bool
+		expectedErr resp.Value
+	}{
+
+		"HGET_SUCCESS": {
+			input: []resp.Value{
+				{
+					Typ: "bulk",
+					Blk: "users",
+				},
+				{
+					Typ: "bulk",
+					Blk: "brahim",
+				},
+			},
+			expected: resp.Value{Typ: "bulk", Blk: "admin"},
+			fails:    false,
+		},
+		"HGET_INVALID_ARGUMENT": {
+			input: []resp.Value{
+				{
+					Typ: "bulk",
+					Blk: "users",
+				},
+			},
+			expectedErr: resp.Value{Typ: "error", Str: "ERR invalid arguments for 'hget' command"},
+			fails:       true,
+		},
+		"HGET_NOT_FOUND": {
+			input: []resp.Value{
+				{
+					Typ: "bulk",
+					Blk: "usersx",
+				},
+				{
+					Typ: "bulk",
+					Blk: "do_not_exist",
+				},
+			},
+			expected: resp.Value{Typ: "null"},
+			fails:    false,
+		},
+	}
+
+	args := []resp.Value{
+		{
+			Typ: "bulk",
+			Blk: "users",
+		},
+		{
+			Typ: "bulk",
+			Blk: "brahim",
+		},
+		{
+			Typ: "bulk",
+			Blk: "admin",
+		},
+	}
+
+	_ = hset(args)
+
+	for title, test := range tests {
+		fmt.Println(">>>", title)
+		results := hget(test.input)
+		if test.fails == true {
+			assert.Equal(t, test.expectedErr, results)
+		} else {
+			assert.Equal(t, test.expected, results)
+		}
+	}
+
+}
