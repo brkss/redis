@@ -229,3 +229,96 @@ func TestHashGet(t *testing.T) {
 	}
 
 }
+
+func TestHashGetAll(t *testing.T) {
+	seed := [][]resp.Value{
+		{
+			{
+				Typ: "bulk",
+				Blk: "us",
+			},
+			{
+				Typ: "bulk",
+				Blk: "jack",
+			},
+			{
+				Typ: "bulk",
+				Blk: "admin",
+			},
+		},
+		{
+			{
+				Typ: "bulk",
+				Blk: "us",
+			},
+			{
+				Typ: "bulk",
+				Blk: "daniel",
+			},
+			{
+				Typ: "bulk",
+				Blk: "admin",
+			},
+		},
+	}
+
+	tests := map[string]struct {
+		input       []resp.Value
+		expected    resp.Value
+		fails       bool
+		expectedErr resp.Value
+	}{
+		"HGETALL_SUCCESS": {
+			input: []resp.Value{
+				{
+					Typ: "bulk",
+					Blk: "us",
+				},
+			},
+			expected: resp.Value{
+				Typ: "array",
+				Arr: []resp.Value{
+					{
+						Typ: "bulk",
+						Blk: "admin",
+					},
+					{
+						Typ: "bulk",
+						Blk: "admin",
+					},
+				},
+			},
+			fails: false,
+		},
+		"HGETALL_INVALID_ARGUMENT": {
+			input:       []resp.Value{},
+			fails:       true,
+			expectedErr: resp.Value{Typ: "error", Str: "ERR invalid arguments for 'hget' command"},
+		},
+		"HGETALL_INVALID_HASH": {
+			input: []resp.Value{
+				{
+					Typ: "bulk",
+					Blk: "no",
+				},
+			},
+			fails:       true,
+			expectedErr: resp.Value{Typ: "null"},
+		},
+	}
+
+	// seed database
+	for _, rec := range seed {
+		_ = hset(rec)
+	}
+
+	for _, test := range tests {
+		result := hgetall(test.input)
+		if test.fails {
+			assert.Equal(t, test.expectedErr, result)
+		} else {
+			assert.Equal(t, test.expected, result)
+		}
+	}
+
+}
