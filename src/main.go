@@ -6,6 +6,7 @@ import (
 	"net"
 	"strings"
 
+	"github.com/brkss/redis/src/aof"
 	"github.com/brkss/redis/src/handler"
 	"github.com/brkss/redis/src/resp"
 )
@@ -13,7 +14,7 @@ import (
 const (
 	PORT        = ":6379"
 	BUFFER_SIZE = 1024
-	DELIMITER
+	AOF_FILE    = "./database.aof"
 )
 
 func main() {
@@ -32,10 +33,16 @@ func main() {
 		log.Fatal("Can't Accept connection : ", err)
 	}
 
+	// init aof
+	aof, err := aof.NewAOF(AOF_FILE)
+	if err != nil {
+		log.Fatal("Something went wrong opening aof : ", err)
+	}
+
+	defer aof.Close()
 	defer conn.Close()
 
 	for {
-
 		reader := resp.NewReader(conn)
 		val, err := reader.Read()
 		if err != nil {
@@ -62,6 +69,13 @@ func main() {
 			fmt.Println("invalid command : ", command)
 			writer.Write(resp.Value{Typ: "string", Str: ""})
 			continue
+		}
+
+		if command == "SET" || command == "HSET" {
+			err := aof.Write(val)
+			if err != nil {
+				log.Println("something went wrong sync data : ", err)
+			}
 		}
 
 		results := handler(args)
