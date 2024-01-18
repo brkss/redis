@@ -5,10 +5,12 @@ import (
 	"strconv"
 )
 
+// Writer struct that holds writer value will be used to write resp response to the connection
 type Writer struct {
 	writer io.Writer
 }
 
+// NewWriter create pointer to Writer struct
 func NewWriter(w io.Writer) *Writer {
 	return &Writer{writer: w}
 }
@@ -24,6 +26,7 @@ func (w *Writer) Write(v Value) error {
 	return nil
 }
 
+// Marshal convert from strut Value to Resp in bytes
 func (v Value) Marshal() []byte {
 	switch v.Typ {
 	case "array":

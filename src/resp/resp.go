@@ -7,6 +7,7 @@ import (
 	"strconv"
 )
 
+// STRING, ... holds pre defined
 const (
 	STRING  = '+'
 	ERROR   = '-'
@@ -15,6 +16,7 @@ const (
 	ARRAY   = '*'
 )
 
+// Value hold request / response value later will be reformed to RESP
 type Value struct {
 	Typ string
 	Str string
@@ -23,10 +25,12 @@ type Value struct {
 	Arr []Value
 }
 
+// Resp holds pointer to bufio reader
 type Resp struct {
 	reader *bufio.Reader
 }
 
+// NewReader create a pointer to Resp
 func NewReader(rd io.Reader) *Resp {
 	return &Resp{bufio.NewReader(rd)}
 }
@@ -38,7 +42,7 @@ func (r *Resp) readLine() (line []byte, n int, err error) {
 		if err != nil {
 			return nil, 0, err
 		}
-		n += 1
+		n++
 		line = append(line, b)
 		if len(line) >= 2 && line[len(line)-2] == '\r' {
 			break
@@ -73,7 +77,7 @@ func (r *Resp) Read() (Value, error) {
 	case BULK:
 		return r.readBulk()
 	default:
-		err := fmt.Errorf("Unkown type %v\n", string(_type))
+		err := fmt.Errorf("unkown type %v", string(_type))
 		return Value{}, err
 	}
 }

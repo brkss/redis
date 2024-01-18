@@ -6,7 +6,10 @@ import (
 	"github.com/brkss/redis/src/resp"
 )
 
+// HSETs is a global variable to hold database hashed data
 var HSETs = map[string]map[string]string{}
+
+// HSETsMutext is a global variable that hold mutexed to handle editing HSETs's data
 var HSETsMutext = sync.RWMutex{}
 
 func hset(args []resp.Value) resp.Value {

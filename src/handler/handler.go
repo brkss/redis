@@ -6,9 +6,13 @@ import (
 	"github.com/brkss/redis/src/resp"
 )
 
+// SETs is a global variable to hold database data
 var SETs = map[string]string{}
+
+// SETsMutex is a global variable that hold mutexed to handle editing SETs's data
 var SETsMutex = sync.RWMutex{}
 
+// Handlers is global variable that hold function for each command !
 var Handlers = map[string]func([]resp.Value) resp.Value{
 	"PING":    ping,
 	"GET":     get,

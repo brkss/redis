@@ -11,18 +11,19 @@ import (
 	"github.com/brkss/redis/src/resp"
 )
 
+// Port is a global const representing the server port
 const (
-	PORT        = ":6379"
-	BUFFER_SIZE = 1024
-	AOF_FILE    = "./database.aof"
+	Port       = ":6379"
+	BufferSize = 1024
+	AOFFile    = "./database.aof"
 )
 
 func main() {
 
-	fmt.Println("Start listening for connection on 127.0.0.1" + PORT)
+	fmt.Println("Start listening for connection on 127.0.0.1" + Port)
 
 	// create new server !
-	l, err := net.Listen("tcp", PORT)
+	l, err := net.Listen("tcp", Port)
 	if err != nil {
 		log.Fatal("Can't run redos server :", err)
 	}
@@ -34,7 +35,7 @@ func main() {
 	}
 
 	// init aof
-	aof, err := aof.NewAOF(AOF_FILE)
+	aof, err := aof.NewAOF(AOFFile)
 	if err != nil {
 		log.Fatal("Something went wrong opening aof : ", err)
 	}
@@ -50,7 +51,6 @@ func main() {
 			return
 		}
 		handler(args)
-		return
 	})
 
 	fmt.Println("read error : ", err)
