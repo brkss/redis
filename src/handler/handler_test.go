@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/brkss/redis/src/resp"
@@ -75,8 +74,7 @@ func TestSetGet(t *testing.T) {
 		},
 	}
 
-	for title, test := range tests {
-		fmt.Println("test >> ", title)
+	for _, test := range tests {
 		if test.f == "SET" { // SET
 			res := set(test.input)
 			if test.fails == true {
@@ -218,8 +216,7 @@ func TestHashGet(t *testing.T) {
 
 	_ = hset(args)
 
-	for title, test := range tests {
-		fmt.Println(">>>", title)
+	for _, test := range tests {
 		results := hget(test.input)
 		if test.fails == true {
 			assert.Equal(t, test.expectedErr, results)

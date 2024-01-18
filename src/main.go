@@ -39,6 +39,22 @@ func main() {
 		log.Fatal("Something went wrong opening aof : ", err)
 	}
 
+	//read from old file
+	err = aof.Read(func(val resp.Value) {
+		command := strings.ToUpper(val.Arr[0].Blk)
+		args := val.Arr[1:]
+
+		handler, ok := handler.Handlers[command]
+		if !ok {
+			fmt.Println("invalid command : ", command)
+			return
+		}
+		handler(args)
+		return
+	})
+
+	fmt.Println("read error : ", err)
+
 	defer aof.Close()
 	defer conn.Close()
 

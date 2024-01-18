@@ -64,7 +64,7 @@ func (r *Resp) readInteger() (x, n int, err error) {
 func (r *Resp) Read() (Value, error) {
 	_type, err := r.reader.ReadByte()
 	if err != nil {
-		return Value{}, nil
+		return Value{}, err
 	}
 
 	switch _type {
@@ -108,7 +108,6 @@ func (r *Resp) readBulk() (Value, error) {
 	v.Typ = "bulk"
 
 	length, _, err := r.readInteger()
-	fmt.Println("length : ", length)
 	if err != nil {
 		return Value{}, err
 	}
